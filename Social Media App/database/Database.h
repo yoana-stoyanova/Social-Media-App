@@ -24,8 +24,13 @@ public:
     void loadPostData();
     void loadLikeData();
     void loadCommentData();
-
     void loadDatabase();
+
+    // Data saving functions
+    void saveUserData();
+    void savePostData();
+    void saveLikeData();
+    void saveCommentData();
     void saveDatabase();
 
 public:
@@ -35,21 +40,21 @@ public:
     // User-related functions
     bool createUser(const std::string& username, const std::string& password);
     bool deleteUser(const std::string& userId);
-    std::vector<User> getAllUsers();
-    User* getUserById(const std::string& userId);
-    User* getUserByUsername(const std::string& username);
+    const std::vector<User>& getAllUsers() const;
+    int getUserById(const std::string& userId);
+    int getUserByUsername(const std::string& username);
 
     // Post-related functions
     bool createPost(const std::string& userId, const std::string& title, const std::string& content);
     bool deletePost(const std::string& postId);
-    std::vector<Post> getAllPosts();
+    const std::vector<Post>& getAllPosts() const;
     int getPostById(const std::string& postId);
     std::vector<Post> getPostsByUserId(const std::string& userId);
 
     // Like-related functions
     bool createLike(const std::string& userId, const std::string& postId);
     bool removeLike(const std::string& likeId);
-    std::vector<ThumbsUp> getAllLikes();
+    const std::vector<ThumbsUp>& getAllLikes() const;
     std::vector<ThumbsUp> getLikesByPostId(const std::string& postId);
     std::vector<ThumbsUp> getLikesByUserId(const std::string& userId);
     int getLikeById(const std::string& likeId);
@@ -59,7 +64,7 @@ public:
     // Comment-related functions
     bool createComment(const std::string& userId, const std::string& postId, const std::string& content);
     bool deleteComment(const std::string& commentId);
-    std::vector<Comment> getAllComments();
+    const std::vector<Comment>& getAllComments() const;
     std::vector<Comment> getCommentsByPostId(const std::string& postId);
     std::vector<Comment> getCommentsByUserId(const std::string& userId);
     int getCommentById(const std::string& commentId);

@@ -1,1 +1,2 @@
 12|user0|pass000
+0-0-0|Pesho|pass000

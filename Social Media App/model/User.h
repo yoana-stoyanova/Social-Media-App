@@ -7,8 +7,6 @@
 #include "ThumbsUp.h"
 #include "Comment.h"
 
-constexpr char DB_DELIMITER = DB_DELIMITER;
-
 class User {
 private:
 	std::string id;

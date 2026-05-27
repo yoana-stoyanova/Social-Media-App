@@ -153,6 +153,82 @@ void Database::loadDatabase() {
     loadLikeData();
 }
 
+// Data saving functions
+void Database::saveUserData(){
+    std::ofstream file(USERS_FILE);
+
+    if (!file.is_open()) {
+        std::cout << "User file not open." << std::endl;
+        return; 
+    }
+
+    int len = users.size();
+
+    for (int i = 0; i < len; i++) {
+        file << Utils::concatRow({users[i].getId(), users[i].getUsername(), users[i].getPassword()}, DB_DELIMITER);
+    }
+
+    file.close();
+}
+
+void Database::savePostData() {
+    std::ofstream file(POSTS_FILE);
+
+    if (!file.is_open()) {
+        std::cout << "Post file not open." << std::endl;
+        return; 
+    }
+
+    int len = posts.size();
+
+    for (int i = 0; i < len; i++) {
+        file << Utils::concatRow({posts[i].getId(), posts[i].getUserId(), posts[i].getTitle(), posts[i].getContent()}, DB_DELIMITER);
+    }
+
+    file.close();
+}
+
+void Database::saveLikeData() {
+    std::ofstream file(LIKES_FILE);
+
+    if (!file.is_open()) {
+        std::cout << "Likes file not open." << std::endl;
+        return; 
+    }
+
+    int len = likes.size();
+
+    for (int i = 0; i < len; i++) {
+        file << Utils::concatRow({likes[i].getId(), likes[i].getUserId(), likes[i].getPostId()}, DB_DELIMITER);
+    }
+
+    file.close();
+}
+
+void Database::saveCommentData(){
+    std::ofstream file(COMMENTS_FILE);
+
+    if (!file.is_open()) {
+        std::cout << "Comments file not open." << std::endl;
+        return; 
+    }
+
+    int len = comments.size();
+
+    for (int i = 0; i < len; i++) {
+        file << Utils::concatRow({comments[i].getId(), comments[i].getUserId(), comments[i].getPostId(), comments[i].getContent()}, DB_DELIMITER);
+    }
+
+    file.close();
+}
+
+void saveDatabase(){
+    void saveUserData();
+    void savePostData();
+    void saveLikeData();
+    void saveCommentData();
+}
+
 // User-related functions
 bool Database::createUser(const std::string& username, const std::string& password){
 
@@ -173,23 +249,64 @@ bool Database::createUser(const std::string& username, const std::string& passwo
 
     User newUser(newId, username, password);
     users.push_back(newUser);
+
+    saveUserData();
+
+    return true;
 }
 
-// Post-related functions
-std::vector<Post> Database::getPostsByUserId(const std::string& userId) {
-    std::vector <Post> userPosts;
-
-    int len = posts.size();
+bool Database::deleteUser(const std::string& userId){
+    std::vector<Post> userPosts = getPostsByUserId(userId);
+    size_t len = userPosts.size();
 
     for(int i = 0; i < len; i++){
-        if(posts[i].getId().compare(userId)){
-            userPosts.push_back(posts[i]);
+        deletePost(userPosts[i].getId());
+    }
+
+    int idx = getUserById(userId);
+
+    if(idx == -1) return false;
+
+    users.erase(users.begin() + idx);
+
+    std::cout << "User deleted." << std::endl;
+
+    saveDatabase();
+
+    return true;
+
+}
+
+const std::vector<User>& Database::getAllUsers() const {
+    return users;
+}
+
+int Database::getUserById(const std::string& userId) {
+    int len  = users.size();
+
+    for(int i = 0; i < len; i++){
+        if(users[i].getId() == userId){
+            return i;
         }
     }
 
-    return userPosts;
+    return -1;
 }
 
+int Database::getUserByUsername(const std::string& username){
+    int len  = users.size();
+
+    for(int i = 0; i < len; i++){
+        if(users[i].getUsername() == username){
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+
+// Post-related functions
 bool Database::createPost(const std::string& userId, const std::string& title, const std::string& content){
     if(userId.empty() || title.empty() || content.empty()) return false;
 
@@ -197,6 +314,68 @@ bool Database::createPost(const std::string& userId, const std::string& title, c
 
     Post newPost(newId, userId, title, content);
     posts.push_back(newPost);
+
+    savePostData();
+
+    return true;
+}
+
+bool Database::deletePost(const std::string& postId){
+    std::vector<ThumbsUp> postLikes = getLikesByPostId(postId);
+    size_t len1 = getLikeCountByPostId(postId);
+
+    for(int i = 0; i < len1; i++){
+        removeLike(postLikes[i].getId());
+    }
+
+    std::vector<Comment> postComments = getCommentsByPostId(postId);
+    size_t len2 = getCommentCountByPostId(postId);
+
+    for(int i = 0; i < len2; i++){
+        deleteComment(postComments[i].getId());
+    }
+
+    int idx = getPostById(postId);
+
+    if(idx == -1) return false;
+
+    posts.erase(posts.begin() + idx);
+
+    std::cout << "Post deleted." << std::endl;
+
+    saveDatabase();
+
+    return true;
+}
+
+const std::vector<Post>& Database::getAllPosts() const {
+    return posts;
+}
+
+int Database::getPostById(const std::string& postId){
+    int len  = posts.size();
+
+    for(int i = 0; i < len; i++){
+        if(posts[i].getId() == postId){
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+std::vector<Post> Database::getPostsByUserId(const std::string& userId){
+    std::vector<Post> userPosts;
+
+    int len = posts.size();
+
+    for(int i = 0; i < len; i++){
+        if(posts[i].getId() == userId){
+            userPosts.push_back(posts[i]);
+        }
+    }
+
+    return userPosts;
 }
 
 // Like-related functions
@@ -206,7 +385,7 @@ std::vector<ThumbsUp> Database::getLikesByUserId(const std::string& userId) {
     int len = likes.size();
 
     for(int i = 0; i < len; i++){
-        if(likes[i].getId().compare(userId)){
+        if(likes[i].getId() == userId){
             userLikes.push_back(likes[i]);
         }
     }
@@ -229,6 +408,8 @@ bool Database::createLike(const std::string& userId, const std::string& postId){
     ThumbsUp newLike(newId, userId, postId);
     likes.push_back(newLike);
 
+    saveLikeData();
+
     return true;
 }
 
@@ -241,11 +422,14 @@ bool Database::removeLike(const std::string& likeId){
 
     std::cout << "Like deleted." << std::endl;
 
+    saveLikeData();
+
     return true;
 }
 
-//TODO: need this?
-std::vector<ThumbsUp> getAllLikes(){}
+const std::vector<ThumbsUp>& Database::getAllLikes() const {
+    return likes;
+}
 
 std::vector<ThumbsUp> Database::getLikesByPostId(const std::string& postId){
     int len  = likes.size();
@@ -292,22 +476,7 @@ bool Database::hasUserLiked(const std::string& userId, const std::string& postId
     return false;
 }
 
-
 // Comment-related functions
-std::vector<Comment> Database::getCommentsByUserId(const std::string& userId) {
-    std::vector <Comment> userComments;
-
-    int len = comments.size();
-
-    for(int i = 0; i < len; i++){
-        if(comments[i].getId().compare(userId)){
-            userComments.push_back(comments[i]);
-        }
-    }
-
-    return userComments;
-}
-
 bool Database::createComment(const std::string& userId, const std::string& postId, const std::string& content){
     if(userId.empty() || postId.empty() || content.empty()) return false;
 
@@ -315,6 +484,10 @@ bool Database::createComment(const std::string& userId, const std::string& postI
 
     Comment newComment(newId, userId, postId, content);
     comments.push_back(newComment);
+
+    saveCommentData();
+
+    return true;
 }
 
 bool Database::deleteComment(const std::string& commentId) {
@@ -326,11 +499,12 @@ bool Database::deleteComment(const std::string& commentId) {
 
     std::cout << "Comment deleted." << std::endl;
 
+    saveCommentData();
+
     return true;
 }
 
-//TODO: Const and & ???
-std::vector<Comment> Database::getAllComments() {
+const std::vector<Comment>& Database::getAllComments() const {
     return comments;
 }
 

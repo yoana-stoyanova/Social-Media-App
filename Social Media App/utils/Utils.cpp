@@ -18,8 +18,24 @@ std::vector<std::string> Utils::splitRow(const std::string& row, char sep) {
     return data;
 }
 
+std::string Utils::concatRow(const std::vector<std::string>& data, char sep){
+    int len = data.size();
+
+    std::string row = "";
+
+    for(int i = 0; i < len - 1; i++){
+        row += data[i];
+        row += sep;
+    }
+
+    row += data[len - 1];
+    row += "\n";
+
+    return row;
+}
+
 //UUID to ensure unique ids
-std::string generateId() {
+std::string Utils::generateId() {
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> dis(0, 15);
