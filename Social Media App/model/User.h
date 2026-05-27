@@ -7,16 +7,14 @@
 #include "ThumbsUp.h"
 #include "Comment.h"
 
+constexpr char DB_DELIMITER = DB_DELIMITER;
+
 class User {
 private:
 	std::string id;
 
 	std::string username;
 	std::string password;
-
-	std::vector<Post> posts;
-	std::vector<ThumbsUp> likes;
-	std::vector<Comment> comments;
 
 public:
 	User(std::string username, std::string password);
@@ -33,21 +31,5 @@ public:
 	const std::string getPassword() const {
 		return password; 
 	}
-
-	const std::vector<Post>& getPosts() const {
-		return posts;
-	}
-
-	const std::vector<ThumbsUp>& getLikes() const {
-		return likes;
-	}
-
-	const std::vector<Comment>& getComments() const {
-		return comments;
-	}
-
-	void addPost(const Post& post);
-	void addLike(const ThumbsUp& like);
-	void addComment(const Comment& comment);
 };
 

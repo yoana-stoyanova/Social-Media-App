@@ -1,5 +1,3 @@
-#pragma once
-
 #include "../model/User.h"
 #include "../model/Post.h"
 #include "../model/ThumbsUp.h"
@@ -14,12 +12,14 @@ const std::string COMMENTS_FILE = "data/comments.txt";
 
 class Database {
 
+    //TODO: private!!
 public:
     std::vector<User> users;
     std::vector<Post> posts;
     std::vector<ThumbsUp> likes;
     std::vector<Comment> comments;
 
+    // Data loading functions
     void loadUserData();
     void loadPostData();
     void loadLikeData();
@@ -30,24 +30,38 @@ public:
 
 public:
     
-    void createUser(const User& user);
-    bool deleteUser(int userId);
-    User* getUserById(int userId);
-    User* getUserByUsername(std::string username);
+    //TODO: create and delete func params
 
+    // User-related functions
+    bool createUser(const std::string& username, const std::string& password);
+    bool deleteUser(const std::string& userId);
+    std::vector<User> getAllUsers();
+    User* getUserById(const std::string& userId);
+    User* getUserByUsername(const std::string& username);
 
-    void createPost(const Post& post);
-    bool deletePost(int postId);
-    Post* getPostById(int postId);
+    // Post-related functions
+    bool createPost(const std::string& userId, const std::string& title, const std::string& content);
+    bool deletePost(const std::string& postId);
     std::vector<Post> getAllPosts();
-    std::vector<Post> getPostsByUserId(int userId);
+    int getPostById(const std::string& postId);
+    std::vector<Post> getPostsByUserId(const std::string& userId);
 
-    void addLike(const ThumbsUp& like);
-    void removeLike(int userId, int postId);
-    int getLikeCount(int postId);
-    bool hasUserLiked(int userId, int postId);
+    // Like-related functions
+    bool createLike(const std::string& userId, const std::string& postId);
+    bool removeLike(const std::string& likeId);
+    std::vector<ThumbsUp> getAllLikes();
+    std::vector<ThumbsUp> getLikesByPostId(const std::string& postId);
+    std::vector<ThumbsUp> getLikesByUserId(const std::string& userId);
+    int getLikeById(const std::string& likeId);
+    size_t getLikeCountByPostId(const std::string& postId);
+    bool hasUserLiked(const std::string& userId, const std::string& postId);
 
-    void addComment(const Comment& comment);
-    bool deleteComment(int commentId);
-    std::vector<Comment> getCommentsByPost(int postId);
+    // Comment-related functions
+    bool createComment(const std::string& userId, const std::string& postId, const std::string& content);
+    bool deleteComment(const std::string& commentId);
+    std::vector<Comment> getAllComments();
+    std::vector<Comment> getCommentsByPostId(const std::string& postId);
+    std::vector<Comment> getCommentsByUserId(const std::string& userId);
+    int getCommentById(const std::string& commentId);
+    size_t getCommentCountByPostId(const std::string& postId);
 };

@@ -18,17 +18,27 @@ std::vector<std::string> Utils::splitRow(const std::string& row, char sep) {
     return data;
 }
 
-//TODO: check
-std::string Utils::generateId() {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(0, ID_CHARSET.length() - 1);
+//UUID to ensure unique ids
+std::string generateId() {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dis(0, 15);
 
-    std::string randomID = "";
+        std::string randomId = "";
 
-    for(int i = 0; i < ID_LENGTH; i++) {
-        randomID += ID_CHARSET[dis(gen)];
+        for (int i = 0; i < 8; ++i) randomId += ID_CHARSET[dis(gen)];
+        randomId += "-";
+
+        for (int i = 0; i < 4; ++i) randomId += ID_CHARSET[dis(gen)];
+        randomId += "-";
+
+        for (int i = 0; i < 4; ++i) randomId += ID_CHARSET[dis(gen)];
+        randomId += "-";
+
+        for (int i = 0; i < 4; ++i) randomId += ID_CHARSET[dis(gen)];
+        randomId += "-";
+
+        for (int i = 0; i < 12; ++i) randomId += ID_CHARSET[dis(gen)];
+
+        return randomId;
     }
-
-    return randomID;
-}
